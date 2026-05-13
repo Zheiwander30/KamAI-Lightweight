@@ -1,0 +1,14 @@
+# --- IDE/System Junk ---
+.vscode/
+.DS_Store
+*.swp
+Thumbs.db
+
+# --- Frontend ---
+frontend/.env
+frontend/.env.local
+frontend/node_modules/
+
+# --- Backend ---
+backend/venv310/
+backend/models/

@@ -1,0 +1,211 @@
+{
+  "modelTopology": {
+    "class_name": "Sequential",
+    "config": {
+      "name": "sequential",
+      "layers": [
+        {
+          "class_name": "InputLayer",
+          "name": "input_layer",
+          "inboundNodes": [],
+          "config": {
+            "batchInputShape": [
+              null,
+              63
+            ],
+            "dtype": "float32",
+            "name": "input_layer"
+          },
+          "weights": []
+        },
+        {
+          "class_name": "BatchNormalization",
+          "name": "batch_normalization",
+          "inboundNodes": [],
+          "config": {
+            "name": "batch_normalization",
+            "axis": -1,
+            "momentum": 0.99,
+            "epsilon": 0.001,
+            "center": true,
+            "scale": true,
+            "dtype": "float32"
+          },
+          "weights": [
+            "batch_normalization/gamma",
+            "batch_normalization/beta",
+            "batch_normalization/moving_mean",
+            "batch_normalization/moving_variance"
+          ]
+        },
+        {
+          "class_name": "Dense",
+          "name": "dense",
+          "inboundNodes": [],
+          "config": {
+            "name": "dense",
+            "units": 128,
+            "activation": "relu",
+            "useBias": true,
+            "dtype": "float32"
+          },
+          "weights": [
+            "dense/kernel",
+            "dense/bias"
+          ]
+        },
+        {
+          "class_name": "Dropout",
+          "name": "dropout",
+          "inboundNodes": [],
+          "config": {
+            "name": "dropout",
+            "rate": 0.3,
+            "dtype": "float32"
+          },
+          "weights": []
+        },
+        {
+          "class_name": "Dense",
+          "name": "dense_1",
+          "inboundNodes": [],
+          "config": {
+            "name": "dense_1",
+            "units": 64,
+            "activation": "relu",
+            "useBias": true,
+            "dtype": "float32"
+          },
+          "weights": [
+            "dense_1/kernel",
+            "dense_1/bias"
+          ]
+        },
+        {
+          "class_name": "Dropout",
+          "name": "dropout_1",
+          "inboundNodes": [],
+          "config": {
+            "name": "dropout_1",
+            "rate": 0.3,
+            "dtype": "float32"
+          },
+          "weights": []
+        },
+        {
+          "class_name": "Dense",
+          "name": "dense_2",
+          "inboundNodes": [],
+          "config": {
+            "name": "dense_2",
+            "units": 26,
+            "activation": "softmax",
+            "useBias": true,
+            "dtype": "float32"
+          },
+          "weights": [
+            "dense_2/kernel",
+            "dense_2/bias"
+          ]
+        }
+      ]
+    },
+    "keras_version": "2.x",
+    "backend": "tensorflow"
+  },
+  "weightsManifest": [
+    {
+      "paths": [
+        "weights.bin"
+      ],
+      "weights": [
+        {
+          "name": "batch_normalization/gamma",
+          "shape": [
+            63
+          ],
+          "dtype": "float32",
+          "byteOffset": 0
+        },
+        {
+          "name": "batch_normalization/beta",
+          "shape": [
+            63
+          ],
+          "dtype": "float32",
+          "byteOffset": 252
+        },
+        {
+          "name": "batch_normalization/moving_mean",
+          "shape": [
+            63
+          ],
+          "dtype": "float32",
+          "byteOffset": 504
+        },
+        {
+          "name": "batch_normalization/moving_variance",
+          "shape": [
+            63
+          ],
+          "dtype": "float32",
+          "byteOffset": 756
+        },
+        {
+          "name": "dense/kernel",
+          "shape": [
+            63,
+            128
+          ],
+          "dtype": "float32",
+          "byteOffset": 1008
+        },
+        {
+          "name": "dense/bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "byteOffset": 33264
+        },
+        {
+          "name": "dense_1/kernel",
+          "shape": [
+            128,
+            64
+          ],
+          "dtype": "float32",
+          "byteOffset": 33776
+        },
+        {
+          "name": "dense_1/bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "byteOffset": 66544
+        },
+        {
+          "name": "dense_2/kernel",
+          "shape": [
+            64,
+            26
+          ],
+          "dtype": "float32",
+          "byteOffset": 66800
+        },
+        {
+          "name": "dense_2/bias",
+          "shape": [
+            26
+          ],
+          "dtype": "float32",
+          "byteOffset": 73456
+        }
+      ]
+    }
+  ],
+  "format": "layers-model",
+  "generatedBy": "KamAI convert_to_tfjs.py",
+  "convertedBy": null
+}
