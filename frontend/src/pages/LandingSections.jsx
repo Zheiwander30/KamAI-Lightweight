@@ -112,7 +112,7 @@ export function SupportBanner() {
         <p className="text-teal-100 text-base sm:text-lg mb-8 max-w-xl mx-auto">
           If KamAI helped you communicate or practice sign language, consider buying us a coffee. Your support keeps this tool free and actively maintained.
         </p>
-        <a href="https://ko-fi.com" target="_blank" rel="noopener noreferrer"
+        <a href="https://ko-fi.com/E1E21X5T2F" target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-white text-teal-600 font-bold px-8 py-4 rounded-2xl
             hover:bg-teal-50 transition-colors shadow-lg">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

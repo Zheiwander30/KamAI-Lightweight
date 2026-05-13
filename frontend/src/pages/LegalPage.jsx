@@ -133,7 +133,7 @@ export function LegalPage({ page, navigate }) {
                 className="font-bold text-lg text-gray-900 mb-3">{s.heading}</h2>
               <p className="text-gray-600 text-sm leading-relaxed">{s.body}</p>
               {s.kofi && (
-                <a href="https://ko-fi.com" target="_blank" rel="noopener noreferrer"
+                <a href="https://ko-fi.com/E1E21X5T2F" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 mt-4 bg-teal-500 hover:bg-teal-600
                     text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
