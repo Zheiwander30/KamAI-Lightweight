@@ -19,17 +19,11 @@ export function useCamera() {
 
   const [camReady,      setCamReady]      = useState(false)
   const [camError,      setCamError]      = useState('')
-  const [isMobileFront, setIsMobileFront] = useState(false)
-
   const initCamera = useCallback(async () => {
     setCamError('')
     setCamReady(false)
 
     // Detect mobile — affects landmark X orientation
-    const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
-
-    // On mobile we still use the front camera (user-facing) for signing,
-    // but we record that fact so landmarks can be corrected.
     const constraints = {
       video: {
         width:      { ideal: 640 },
@@ -41,14 +35,6 @@ export function useCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
       streamRef.current = stream
-
-      // Check which camera we actually got
-      const track      = stream.getVideoTracks()[0]
-      const settings   = track.getSettings?.() ?? {}
-      const facingMode = settings.facingMode ?? ''
-      const isFront    = facingMode === 'user' || facingMode === ''
-
-      setIsMobileFront(mobile && isFront)
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream
@@ -72,5 +58,5 @@ export function useCamera() {
     return teardown
   }, [])
 
-  return { camReady, camError, isMobileFront, videoRef, initCamera, teardown }
+  return { camReady, camError, videoRef, initCamera, teardown }
 }

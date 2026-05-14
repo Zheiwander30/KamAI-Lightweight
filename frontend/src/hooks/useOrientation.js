@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
  *
  * Uses screen.orientation API with fallback to window.orientation.
  */
+ 
 export function useOrientation() {
   const getAngle = () => {
     if (screen?.orientation?.angle !== undefined) return screen.orientation.angle

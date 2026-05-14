@@ -1,12 +1,6 @@
 import { SIGN_MODELS } from '../constants'
 import { FlagIcon }    from './FlagIcon'
 
-/**
- * Compact model selector using a native <select> dropdown.
- * No portal needed — lives outside overflow:hidden now that controls
- * are in their own two-row layout.
- */
- 
 export function ModelSelector({ selected, onChange, disabled }) {
   return (
     <div className="flex items-center gap-1.5 flex-1 min-w-0">

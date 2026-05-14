@@ -1,22 +1,20 @@
 import { useRef } from 'react'
 import { useCamera } from '../hooks/useCamera'
 import { SpeedSelector }   from '../components/SpeedSelector'
-import { useOrientation }  from '../hooks/useOrientation'
 import { useSignSession } from '../hooks/useSignSession'
 import { ModelSelector } from '../components/ModelSelector'
 
 export function SignToText() {
   const canvasRef       = useRef(null)
   const overlayRef      = useRef(null)
-  const orientationAngle = useOrientation()
 
-  const { camReady, camError, isMobileFront, videoRef, initCamera } = useCamera()
+  const { camReady, camError, videoRef, initCamera } = useCamera()
 
   const {
     running, mpLoading, mpError, modelLoading, modelError, activeModel, activeSpeed, handPresent,
     currentLetter, confidence, pendingWord, transcript, archivedCount, elapsed,
     handleStart, handleStop, handleSpace, handleBack, handleClear, handleModelChange, handleSpeedChange,
-  } = useSignSession({ videoRef, canvasRef, overlayRef, isMobileFront })
+  } = useSignSession({ videoRef, canvasRef, overlayRef })
 
   const fullText    = [...transcript, pendingWord].filter(Boolean).join(' ')
   const letterCount = fullText.replace(/\s/g, '').length
@@ -85,15 +83,6 @@ export function SignToText() {
                       <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm
                         rounded-full px-4 py-1.5 text-xs text-white/70 font-medium whitespace-nowrap">
                         Show your hand to the camera
-                      </div>
-                    )}
-                    {/* Mobile correction status badge */}
-                    {isMobileFront && (
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5
-                        bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
-                        <span className="text-[10px] text-teal-300 font-bold whitespace-nowrap">
-                          📱 {orientationAngle}° · mirror+rotation correction on
-                        </span>
                       </div>
                     )}
 

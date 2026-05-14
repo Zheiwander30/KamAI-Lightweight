@@ -4,22 +4,16 @@ import {
   MAX_TRANSCRIPT_WORDS, MAX_PENDING_LETTERS, DEFAULT_MODEL,
 } from '../constants'
 import { predictFromLandmarks, loadTFJSModel } from '../utils/tfjsModel'
-import { useOrientation } from './useOrientation'
 
 /**
- * All sign-to-text session logic — fully client-side, no backend.
  *
  * Mobile mirroring fix:
- *   When isMobileFront=true, landmark X coordinates are flipped (1 - x)
- *   before being passed to the model. This corrects the orientation
- *   mismatch between mobile front cameras and desktop training data.
- *
  * Speed modes:
  *   captureInterval and repeatsToConfirm come from the active speed mode,
  *   passed in as props. Changing speed mid-session restarts the predict loop.
  */
-export function useSignSession({ videoRef, canvasRef, overlayRef, isMobileFront }) {
-  const orientationAngle = useOrientation()
+ 
+export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   // ── Refs ────────────────────────────────────────────────────────────────────
   const handsRef       = useRef(null)
   const runningRef     = useRef(false)
@@ -104,45 +98,11 @@ export function useSignSession({ videoRef, canvasRef, overlayRef, isMobileFront 
   }, [])
 
   // ── Normalize landmarks ────────────────────────────────────────────────────
-  // Corrects landmark coordinates to match desktop training data orientation.
-  //
-  // Desktop training: landscape, right hand, wrist at bottom, X left→right.
-  // Mobile issues:
-  //   1. Portrait mode: device rotated 90° → wrist appears at side not bottom.
-  //      Fix: rotate (x,y) coordinates to restore desktop orientation.
-  //   2. Front camera mirror: X is flipped vs training data.
-  //      Fix: flip X after rotation.
-  //
-  // Rotation math (2D around center 0.5, 0.5):
-  //   Portrait left  (+90°): newX =     y, newY = 1-x
-  //   Portrait right (-90°): newX = 1-y,  newY =   x
-  //   Upside down   (180°):  newX = 1-x,  newY = 1-y
-  const normalizeLandmarks = useCallback((landmarks) => {
-    const mobile  = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
-    const angle   = mobile ? orientationAngle : 0
-
-    return landmarks.map(lm => {
-      let { x, y, z } = lm
-
-      // Step 1: rotate coordinates to match landscape training orientation
-      if (angle === 90 || angle === -270) {
-        // Portrait held normally (home button at bottom on older phones)
-        ;[x, y] = [y, 1 - x]
-      } else if (angle === -90 || angle === 270) {
-        // Portrait upside down
-        ;[x, y] = [1 - y, x]
-      } else if (angle === 180 || angle === -180) {
-        // Landscape upside down
-        ;[x, y] = [1 - x, 1 - y]
-      }
-      // angle === 0: landscape — no rotation needed
-
-      // Step 2: flip X for front camera mirror correction
-      if (isMobileFront) x = 1 - x
-
-      return { ...lm, x, y, z }
-    })
-  }, [isMobileFront, orientationAngle])
+  // MediaPipe receives the raw unmirrored video stream on all platforms.
+  // CSS scaleX(-1) is cosmetic only — landmarks are already in the same
+  // coordinate space as desktop training data on mobile too.
+  // No transform needed. Previous X-flip was inverting correct coordinates.
+  const normalizeLandmarks = useCallback((landmarks) => landmarks, [])
 
   // ── Load MediaPipe ─────────────────────────────────────────────────────────
   const loadMediaPipe = async () => {
@@ -201,7 +161,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef, isMobileFront 
       return true
     } catch (e) {
       console.error('TFJS model load error:', e)
-      setModelError(`Failed to load "${modelId}" model. Check frontend/public/models/.`)
+      setModelError(`Failed to load "${modelId}" model.`)
       return false
     } finally {
       setModelLoading(false)
