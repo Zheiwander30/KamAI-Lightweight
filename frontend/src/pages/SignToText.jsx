@@ -1,12 +1,14 @@
 import { useRef } from 'react'
 import { useCamera } from '../hooks/useCamera'
-import { SpeedSelector } from '../components/SpeedSelector'
+import { SpeedSelector }   from '../components/SpeedSelector'
+import { useOrientation }  from '../hooks/useOrientation'
 import { useSignSession } from '../hooks/useSignSession'
 import { ModelSelector } from '../components/ModelSelector'
 
 export function SignToText() {
-  const canvasRef  = useRef(null)
-  const overlayRef = useRef(null)
+  const canvasRef       = useRef(null)
+  const overlayRef      = useRef(null)
+  const orientationAngle = useOrientation()
 
   const { camReady, camError, isMobileFront, videoRef, initCamera } = useCamera()
 
@@ -85,11 +87,13 @@ export function SignToText() {
                         Show your hand to the camera
                       </div>
                     )}
-                    {/* Mobile front-camera correction notice */}
-                    {isMobileFront && !running && camReady && (
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-teal-500/90 backdrop-blur-sm
-                        rounded-full px-3 py-1 text-[10px] text-white font-semibold whitespace-nowrap">
-                        📱 Mobile mode — landmark correction active
+                    {/* Mobile correction status badge */}
+                    {isMobileFront && (
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5
+                        bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
+                        <span className="text-[10px] text-teal-300 font-bold whitespace-nowrap">
+                          📱 {orientationAngle}° · mirror+rotation correction on
+                        </span>
                       </div>
                     )}
 
