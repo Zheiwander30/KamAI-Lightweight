@@ -1,15 +1,45 @@
 // ─── Prediction tuning ────────────────────────────────────────────────────────
-export const CAPTURE_INTERVAL    = 300   // ms between predict calls (only fires when hand visible)
-export const MIN_CONFIDENCE      = 0.75  // minimum confidence to accept a prediction
-export const REPEATS_TO_CONFIRM  = 2     // same letter must appear N times consecutively to confirm
-export const MAX_TRANSCRIPT_WORDS = 200  // auto-archive oldest words beyond this cap
-export const MAX_PENDING_LETTERS  = 40   // auto-commit building-word if it hits this length
+export const MIN_CONFIDENCE       = 0.75
+export const MAX_TRANSCRIPT_WORDS = 200
+export const MAX_PENDING_LETTERS  = 40
+
+// ─── Speed modes ─────────────────────────────────────────────────────────────
+// captureInterval: ms between prediction calls (lower = faster detection)
+// repeatsToConfirm: how many consecutive matching predictions to confirm a letter
+//   Higher repeats = harder to accidentally trigger, but slower to build words
+
+export const SPEED_MODES = [
+  {
+    id:               'slow',
+    label:            'Slow',
+    icon:             '🐢',
+    desc:             'Learners & Beginners',
+    captureInterval:  600,
+    repeatsToConfirm: 4,
+  },
+  {
+    id:               'normal',
+    label:            'Normal',
+    icon:             '👋',
+    desc:             'Comfortable Pace',
+    captureInterval:  400,
+    repeatsToConfirm: 3,
+  },
+  {
+    id:               'fast',
+    label:            'Fast',
+    icon:             '⚡',
+    desc:             'Experienced Fingerspellers',
+    captureInterval:  200,
+    repeatsToConfirm: 2,
+  },
+]
+export const DEFAULT_SPEED = SPEED_MODES[1]   // Normal
 
 // ─── Sign Language Models ─────────────────────────────────────────────────────
 // To add a new model:
 //   1. Add an entry here with id, label, fullName, countryCode
-//   2. Add matching model files to backend/models/<id>/
-//   3. Register the id in backend/main.py MODEL_REGISTRY
+
 export const SIGN_MODELS = [
   {
     id:          'fsl',

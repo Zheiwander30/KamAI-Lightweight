@@ -1,35 +1,37 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
-  CAPTURE_INTERVAL, MIN_CONFIDENCE, REPEATS_TO_CONFIRM,
+  MIN_CONFIDENCE, DEFAULT_SPEED,
   MAX_TRANSCRIPT_WORDS, MAX_PENDING_LETTERS, DEFAULT_MODEL,
 } from '../constants'
 import { predictFromLandmarks, loadTFJSModel } from '../utils/tfjsModel'
 
 /**
- * All sign-to-text session logic — fully client-side, no backend calls.
+ * All sign-to-text session logic — fully client-side, no backend.
  *
- * Flow:
- *   MediaPipe onResults → 21 landmarks extracted
- *     → draws skeleton on overlay canvas (visual)
- *     → predictFromLandmarks() runs local TFJS model → letter + confidence
+ * Mobile mirroring fix:
+ *   When isMobileFront=true, landmark X coordinates are flipped (1 - x)
+ *   before being passed to the model. This corrects the orientation
+ *   mismatch between mobile front cameras and desktop training data.
  *
- * Hand-presence gating:
- *   Prediction only runs when MediaPipe detects a hand.
- *   handPresentRef is set in onResults (ref, not state — avoids rAF re-renders).
- *   UI polls handPresentRef at 200ms for the "show your hand" hint.
+ * Speed modes:
+ *   captureInterval and repeatsToConfirm come from the active speed mode,
+ *   passed in as props. Changing speed mid-session restarts the predict loop.
  */
-export function useSignSession({ videoRef, canvasRef, overlayRef }) {
+export function useSignSession({ videoRef, canvasRef, overlayRef, isMobileFront }) {
   // ── Refs ────────────────────────────────────────────────────────────────────
-  const handsRef        = useRef(null)
-  const runningRef      = useRef(false)
-  const stoppedRef      = useRef(false)
-  const intervalRef     = useRef(null)
-  const handPresentRef  = useRef(false)
-  const landmarksRef    = useRef(null)   // latest landmarks from MediaPipe onResults
-  const lastLetterRef   = useRef(null)
-  const repeatCountRef  = useRef(0)
-  const sessionStartRef = useRef(null)
-  const pendingWordRef  = useRef('')
+  const handsRef       = useRef(null)
+  const runningRef     = useRef(false)
+  const stoppedRef     = useRef(false)
+  const intervalRef    = useRef(null)
+  const handPresentRef = useRef(false)
+  const landmarksRef   = useRef(null)
+  const lastLetterRef  = useRef(null)
+  const repeatCountRef = useRef(0)
+  const sessionStartRef= useRef(null)
+  const pendingWordRef = useRef('')
+  // Speed mode refs — read by the interval loop without stale closure
+  const captureIntervalRef  = useRef(DEFAULT_SPEED.captureInterval)
+  const repeatsToConfirmRef = useRef(DEFAULT_SPEED.repeatsToConfirm)
 
   // ── State ───────────────────────────────────────────────────────────────────
   const [running,       setRunning]       = useState(false)
@@ -38,6 +40,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   const [modelLoading,  setModelLoading]  = useState(false)
   const [modelError,    setModelError]    = useState('')
   const [activeModel,   setActiveModel]   = useState(DEFAULT_MODEL)
+  const [activeSpeed,   setActiveSpeed]   = useState(DEFAULT_SPEED)
   const [currentLetter, setCurrentLetter] = useState(null)
   const [confidence,    setConfidence]    = useState(0)
   const [pendingWord,   setPendingWord]   = useState('')
@@ -47,6 +50,12 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   const [handPresent,   setHandPresent]   = useState(false)
 
   useEffect(() => { pendingWordRef.current = pendingWord }, [pendingWord])
+
+  // Keep speed refs in sync with state — the interval loop reads refs directly
+  useEffect(() => {
+    captureIntervalRef.current  = activeSpeed.captureInterval
+    repeatsToConfirmRef.current = activeSpeed.repeatsToConfirm
+  }, [activeSpeed])
 
   // ── Session timer ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -58,7 +67,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     return () => clearInterval(t)
   }, [running])
 
-  // ── Hand-presence polling (200ms → UI only) ────────────────────────────────
+  // ── Hand-presence polling ──────────────────────────────────────────────────
   useEffect(() => {
     if (!running) { setHandPresent(false); return }
     const t = setInterval(() => setHandPresent(handPresentRef.current), 200)
@@ -69,21 +78,14 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   useEffect(() => {
     const onKeyDown = (e) => {
       if (!runningRef.current) return
-      if (e.code === 'Space') {
-        e.preventDefault()
-        const w = pendingWordRef.current.trim()
-        if (w) commitWord(w)
-      }
-      if (e.code === 'Backspace') {
-        e.preventDefault()
-        setPendingWord(w => w.slice(0, -1))
-      }
+      if (e.code === 'Space')     { e.preventDefault(); const w = pendingWordRef.current.trim(); if (w) commitWord(w) }
+      if (e.code === 'Backspace') { e.preventDefault(); setPendingWord(w => w.slice(0, -1)) }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  // ── Commit word to transcript ──────────────────────────────────────────────
+  // ── Commit word ────────────────────────────────────────────────────────────
   const commitWord = useCallback((w) => {
     setTranscript(prev => {
       const next = [...prev, w]
@@ -99,14 +101,21 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     repeatCountRef.current = 0
   }, [])
 
-  // ── Load MediaPipe Hands ───────────────────────────────────────────────────
+  // ── Normalize landmarks ────────────────────────────────────────────────────
+  // On mobile front cameras, X is mirrored vs desktop training data.
+  // Flipping X (1 - x) corrects the orientation without changing Y or Z.
+  const normalizeLandmarks = useCallback((landmarks) => {
+    if (!isMobileFront) return landmarks
+    return landmarks.map(lm => ({ ...lm, x: 1 - lm.x }))
+  }, [isMobileFront])
+
+  // ── Load MediaPipe ─────────────────────────────────────────────────────────
   const loadMediaPipe = async () => {
     if (handsRef.current) return handsRef.current
     setMpLoading(true)
     setMpError('')
     try {
       if (!window.Hands) throw new Error('MediaPipe scripts not loaded. Refresh the page.')
-
       const hands = new window.Hands({
         locateFile: (file) =>
           `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
@@ -117,7 +126,6 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
         minDetectionConfidence: 0.7,
         minTrackingConfidence:  0.5,
       })
-
       hands.onResults((results) => {
         const overlay = overlayRef.current
         if (!overlay) return
@@ -129,20 +137,20 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
 
         if (detected) {
           const lm = results.multiHandLandmarks[0]
-          // Store latest landmarks for the predict interval to consume
-          landmarksRef.current = lm
+          // Store normalized landmarks for predict loop
+          landmarksRef.current = normalizeLandmarks(lm)
+          // Draw original (un-normalized) for visual — CSS handles mirror
           window.drawConnectors(ctx, lm, window.HAND_CONNECTIONS, { color: '#2AABAC', lineWidth: 2 })
           window.drawLandmarks(ctx, lm, { color: '#ffffff', lineWidth: 1, radius: 3 })
         } else {
           landmarksRef.current = null
         }
       })
-
       handsRef.current = hands
       return hands
     } catch (e) {
       console.error('MediaPipe load error:', e)
-      setMpError('Failed to load hand-tracking model. Check your internet connection and refresh.')
+      setMpError('Failed to load hand-tracking model. Refresh the page.')
       return null
     } finally {
       setMpLoading(false)
@@ -155,17 +163,17 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     setModelError('')
     try {
       await loadTFJSModel(modelId)
+      return true
     } catch (e) {
       console.error('TFJS model load error:', e)
-      setModelError(`Failed to load "${modelId}" model. Make sure you ran convert_to_tfjs.py and committed the output.`)
+      setModelError(`Failed to load "${modelId}" model. Check frontend/public/models/.`)
       return false
     } finally {
       setModelLoading(false)
     }
-    return true
   }
 
-  // ── Landmark overlay loop (rAF — visual only) ──────────────────────────────
+  // ── Landmark overlay loop ──────────────────────────────────────────────────
   const startLandmarkLoop = (hands) => {
     let processing = false
     const loop = async () => {
@@ -185,63 +193,70 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     requestAnimationFrame(loop)
   }
 
-  // ── Predict loop (interval, reads landmarks from ref) ─────────────────────
-  // No HTTP calls — runs TFJS model locally on the landmarks MediaPipe already gave us.
-  // CAPTURE_INTERVAL controls how often we classify, not how often we draw.
+  // ── Predict loop ───────────────────────────────────────────────────────────
+  // Uses refs for captureInterval and repeatsToConfirm so speed changes
+  // take effect immediately without restarting the loop.
   const startPredictLoop = (modelId) => {
     let predicting = false
-    const id = setInterval(async () => {
-      if (!runningRef.current || stoppedRef.current) { clearInterval(id); return }
-      if (predicting) return
-      if (!handPresentRef.current || !landmarksRef.current) return  // no hand → skip
+    let lastTick   = 0
 
-      predicting = true
-      try {
-        const { letter, confidence: conf } = await predictFromLandmarks(
-          landmarksRef.current,
-          modelId,
-          MIN_CONFIDENCE,
-        )
-        if (stoppedRef.current) return
+    const loop = async (now) => {
+      if (!runningRef.current || stoppedRef.current) return
 
-        setCurrentLetter(letter === 'None' ? null : letter)
-        setConfidence(conf)
+      // Self-scheduling rAF with manual interval check
+      // This lets us change captureInterval live via ref
+      if (now - lastTick >= captureIntervalRef.current) {
+        lastTick = now
 
-        if (letter !== 'None' && conf >= MIN_CONFIDENCE) {
-          if (letter === lastLetterRef.current) {
-            repeatCountRef.current += 1
-            if (repeatCountRef.current === REPEATS_TO_CONFIRM) {
-              setPendingWord(w => {
-                const next = w + letter
-                if (next.length >= MAX_PENDING_LETTERS) {
-                  setTimeout(() => commitWord(next), 0)
-                  return ''
+        if (!predicting && handPresentRef.current && landmarksRef.current) {
+          predicting = true
+          try {
+            const { letter, confidence: conf } = await predictFromLandmarks(
+              landmarksRef.current,
+              modelId,
+              MIN_CONFIDENCE,
+            )
+            if (stoppedRef.current) return
+
+            setCurrentLetter(letter === 'None' ? null : letter)
+            setConfidence(conf)
+
+            if (letter !== 'None' && conf >= MIN_CONFIDENCE) {
+              if (letter === lastLetterRef.current) {
+                repeatCountRef.current += 1
+                if (repeatCountRef.current === repeatsToConfirmRef.current) {
+                  setPendingWord(w => {
+                    const next = w + letter
+                    if (next.length >= MAX_PENDING_LETTERS) {
+                      setTimeout(() => commitWord(next), 0)
+                      return ''
+                    }
+                    return next
+                  })
+                  repeatCountRef.current = 0
                 }
-                return next
-              })
+              } else {
+                lastLetterRef.current  = letter
+                repeatCountRef.current = 1
+              }
+            } else {
+              lastLetterRef.current  = null
               repeatCountRef.current = 0
             }
-          } else {
-            lastLetterRef.current = letter
-            repeatCountRef.current = 1
+          } finally {
+            predicting = false
           }
-        } else {
-          lastLetterRef.current  = null
-          repeatCountRef.current = 0
         }
-      } finally {
-        predicting = false
       }
-    }, CAPTURE_INTERVAL)
-    intervalRef.current = id
+      if (runningRef.current) intervalRef.current = requestAnimationFrame(loop)
+    }
+    intervalRef.current = requestAnimationFrame(loop)
   }
 
   // ── Start ──────────────────────────────────────────────────────────────────
   const handleStart = async () => {
     const video = videoRef.current
     if (!video) return
-
-    // Load MediaPipe and TFJS model in parallel
     const [hands, modelOk] = await Promise.all([
       loadMediaPipe(),
       loadModel(activeModel.id),
@@ -269,11 +284,11 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
 
   // ── Stop ───────────────────────────────────────────────────────────────────
   const handleStop = () => {
-    stoppedRef.current        = true
-    runningRef.current        = false
-    handPresentRef.current    = false
-    landmarksRef.current      = null
-    clearInterval(intervalRef.current)
+    stoppedRef.current     = true
+    runningRef.current     = false
+    handPresentRef.current = false
+    landmarksRef.current   = null
+    cancelAnimationFrame(intervalRef.current)
     setRunning(false)
     setCurrentLetter(null)
     setHandPresent(false)
@@ -298,11 +313,19 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     repeatCountRef.current = 0
   }
   const handleModelChange = (model) => { if (!running) setActiveModel(model) }
+  const handleSpeedChange = (speed) => {
+    setActiveSpeed(speed)
+    // Refs update via useEffect above — loop picks up change on next tick
+    if (!running) return
+    lastLetterRef.current  = null
+    repeatCountRef.current = 0
+  }
 
   return {
     running, mpLoading, mpError, modelLoading, modelError,
-    activeModel, handPresent,
+    activeModel, activeSpeed, handPresent,
     currentLetter, confidence, pendingWord, transcript, archivedCount, elapsed,
-    handleStart, handleStop, handleSpace, handleBack, handleClear, handleModelChange,
+    handleStart, handleStop, handleSpace, handleBack, handleClear,
+    handleModelChange, handleSpeedChange,
   }
 }
