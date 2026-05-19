@@ -1,40 +1,40 @@
 # ── Security headers for all routes ──────────────────────────────────────────
 /*
-  # MITM protection
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+	# MITM protection
+	Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 
-  # Prevent MIME-type sniffing
-  X-Content-Type-Options: nosniff
+	# Prevent MIME-type sniffing
+	X-Content-Type-Options: nosniff
 
-  # Prevent clickjacking
-  X-Frame-Options: DENY
+	# Prevent clickjacking
+	X-Frame-Options: DENY
 
-  # Limit referrer info
-  Referrer-Policy: strict-origin-when-cross-origin
+	# Limit referrer info
+	Referrer-Policy: strict-origin-when-cross-origin
 
-  # Permissions policy — allow only camera
-  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
+	# Permissions policy — allow only camera
+	Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
 
-  # Content Security Policy (The Big Fix)
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://storage.ko-fi.com; connect-src 'self' https://cdn.jsdelivr.net https://*.jsdelivr.net; img-src 'self' https://flagcdn.com https://storage.ko-fi.com data: blob:; style-src 'self' 'unsafe-inline' https://storage.ko-fi.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; frame-src https://ko-fi.com; object-src 'none'; base-uri 'self'
+	# Content Security Policy (The Big Fix)
+	Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://storage.ko-fi.com https://static.cloudflareinsights.com; connect-src 'self' https://cdn.jsdelivr.net https://*.jsdelivr.net; img-src 'self' https://flagcdn.com https://storage.ko-fi.com data: blob:; style-src 'self' 'unsafe-inline' https://storage.ko-fi.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; frame-src https://ko-fi.com; object-src 'none'; base-uri 'self'
 
 # ── Static assets — add long cache TTL ───────────────────────────────────────
 /mediapipe/*
-  Cache-Control: public, max-age=31536000, immutable
+	Cache-Control: public, max-age=31536000, immutable
 
 /models/*
-  Cache-Control: public, max-age=31536000, immutable
+	Cache-Control: public, max-age=31536000, immutable
 /site.webmanifest
-  Content-Type: application/manifest+json
-  Cache-Control: public, max-age=86400
+	Content-Type: application/manifest+json
+	Cache-Control: public, max-age=86400
 
 /sitemap.xml
-  Content-Type: application/xml
-  Cache-Control: public, max-age=86400
+	Content-Type: application/xml
+	Cache-Control: public, max-age=86400
 
 /robots.txt
-  Cache-Control: public, max-age=86400
+	Cache-Control: public, max-age=86400
 
 /assets/og-image.png
-  Cache-Control: public, max-age=31536000, immutable
-  Access-Control-Allow-Origin: *
+	Cache-Control: public, max-age=31536000, immutable
+	Access-Control-Allow-Origin: *
