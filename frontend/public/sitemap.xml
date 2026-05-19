@@ -4,29 +4,30 @@
 
   <url>
     <loc>https://kamaisl.com/</loc>
-    <lastmod>2026-01-01</lastmod>
+    <lastmod>2026-05-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://kamaisl.com/"/>
+	<xhtml:link rel="alternate" hreflang="x-default" href="https://kamaisl.com/"/>
   </url>
 
   <url>
     <loc>https://kamaisl.com/contact</loc>
-    <lastmod>2026-01-01</lastmod>
+    <lastmod>2026-05-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://kamaisl.com/privacy-policy</loc>
-    <lastmod>2026-01-01</lastmod>
+    <lastmod>2026-05-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
     <loc>https://kamaisl.com/terms</loc>
-    <lastmod>2026-01-01</lastmod>
+    <lastmod>2026-05-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
