@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /mediapipe/
+Disallow: /models/
+
+# Sitemap location
+Sitemap: https://kamaisl.com/sitemap.xml

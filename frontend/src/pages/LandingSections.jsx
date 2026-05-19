@@ -10,7 +10,7 @@ export const FEATURES = [
 
 export function Features() {
   return (
-    <section id="features" className="py-16 sm:py-20 md:py-24 bg-white">
+    <section id="features" className="py-16 sm:py-20 md:py-24 bg-white" aria-label="Features">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16"> 
           <span className="text-xs font-bold uppercase tracking-widest text-teal-500">Features</span>
@@ -53,7 +53,7 @@ export function HowItWorks({ onStartSigning }) {
   ]
 
   return (
-    <section id="how-it-works" className="py-16 sm:py-20 md:py-24 bg-gray-50">
+    <section id="how-it-works" className="py-16 sm:py-20 md:py-24 bg-gray-50" aria-label="How it works">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-xs font-bold uppercase tracking-widest text-teal-500">How It Works</span>

@@ -21,13 +21,14 @@ export function Navbar({ onStartSigning }) {
   }
 
   return (
-    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300
+    <header role="banner"
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300
       ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-white'}`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16">
 
         <a href="#" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center">
-            <img src="/assets/favicon.svg" alt="Logo" className="w-5 h-5 text-white" />
+            <img src="/assets/favicon.png" alt="Logo" className="w-5 h-5 text-white" />
           </div>
           <span style={{ fontFamily: 'var(--font-display)' }} className="font-bold text-xl text-gray-900">
             Kam<span className="text-teal-500">AI</span>

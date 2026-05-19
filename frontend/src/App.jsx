@@ -42,6 +42,74 @@ function NotFound({ navigate }) {
   )
 }
 
+// ─── SEO: dynamic meta tags per page ─────────────────────────────────────────
+const PAGE_META = {
+  '/': {
+    title:       'KamAI — Free Real-Time Sign Language to Text Interpreter',
+    description: 'Convert Sign Language fingerspelling to text instantly using your webcam. No account, no install, no data uploaded. Runs 100% in your browser.',
+    canonical:   'https://kamaisl.com/',
+  },
+  '/contact': {
+    title:       'Contact — KamAI',
+    description: 'Get in touch with the KamAI team. Report bugs, suggest features, or support the project on Ko-fi.',
+    canonical:   'https://kamaisl.com/contact',
+  },
+  '/privacy-policy': {
+    title:       'Privacy Policy — KamAI',
+    description: 'KamAI collects no personal data. Your camera feed never leaves your device. Read our full privacy policy.',
+    canonical:   'https://kamaisl.com/privacy-policy',
+  },
+  '/terms': {
+    title:       'Terms of Use — KamAI',
+    description: 'Terms of use for KamAI — the free real-time sign language to text interpreter.',
+    canonical:   'https://kamaisl.com/terms',
+  },
+}
+
+function useSEO(page) {
+  useEffect(() => {
+    const meta = PAGE_META[page] || PAGE_META['/']
+
+    // Title
+    document.title = meta.title
+
+    // Description
+    let desc = document.querySelector('meta[name="description"]')
+    if (desc) desc.setAttribute('content', meta.description)
+
+    // Canonical
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
+    }
+    canonical.setAttribute('href', meta.canonical)
+
+    // OG tags
+    const ogTags = {
+      'og:title':       meta.title,
+      'og:description': meta.description,
+      'og:url':         meta.canonical,
+    }
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`)
+      if (tag) tag.setAttribute('content', content)
+    })
+
+    // Twitter tags
+    const twitterTags = {
+      'twitter:title':       meta.title,
+      'twitter:description': meta.description,
+      'twitter:url':         meta.canonical,
+    }
+    Object.entries(twitterTags).forEach(([name, content]) => {
+      let tag = document.querySelector(`meta[name="${name}"]`)
+      if (tag) tag.setAttribute('content', content)
+    })
+  }, [page])
+}
+
 // ─── SPA Router ───────────────────────────────────────────────────────────────
 function usePage() {
   const [page, setPage] = useState(window.location.pathname)
@@ -66,6 +134,7 @@ function usePage() {
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [page, navigate] = usePage()
+  useSEO(page)
 
   const scrollToSigning = () => {
     if (page !== '/') {

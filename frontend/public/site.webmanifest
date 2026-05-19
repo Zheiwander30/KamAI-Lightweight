@@ -1,0 +1,19 @@
+{
+  "name": "KamAI — Sign Language to Text",
+  "short_name": "KamAI",
+  "description": "Real-time Sign language to text interpreter. Free, no account needed.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2AABAC",
+  "orientation": "any",
+  "icons": [
+    { "src": "/assets/favicon.png",       "sizes": "32x32",   "type": "image/png" },
+    { "src": "/assets/icon-192.png",      "sizes": "192x192", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/assets/icon-512.png",      "sizes": "512x512", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "categories": ["accessibility", "education", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}

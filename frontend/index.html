@@ -2,19 +2,94 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="KamAI — Real-time FSL sign language to text interpreter. No account needed." />
-    <title>KamAI — Sign to Text</title>
 
-    <!-- TensorFlow.js — runs your .h5 model locally in the browser, no backend needed -->
+    <!-- ── Primary SEO ──────────────────────────────────────────────────────── -->
+    <title>KamAI — Free Real-Time Sign Language to Text Interpreter</title>
+    <meta name="description"
+      content="KamAI converts American Sign Language (ASL), Filipino Sign Language, German Sign Language (DGS) and more to text in real time using your webcam. Free, no account needed, runs entirely in your browser." />
+    <meta name="keywords"
+      content="FSL interpreter, ASL interpreter, DGS interpreter, German Sign Language, American Sign Language, Filipino Sign Language, sign language to text, sign to text, 
+	  sign language interpreter, fingerspelling, fingerspelling practice tool, fingerspelling tool, deaf accessibility, real-time sign language, browser sign language, free sign 
+	  language tool" />
+	  
+    <meta name="author" content="KamAI" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kamaisl.com/" />
+
+    <!-- ── Open Graph (Facebook, LinkedIn, Discord previews) ───────────────── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://kamaisl.com/" />
+    <meta property="og:title"       content="KamAI — Free Real-Time Sign Language to Text" />
+    <meta property="og:description" content="Convert Sign Language fingerspelling to text instantly using your webcam. No account, no install, no data uploaded. Runs 100% in your browser." />
+    <meta property="og:image"       content="https://kamaisl.com/assets/og-image.png" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt"    content="KamAI sign language to text demo" />
+    <meta property="og:site_name"    content="KamAI" />
+    <meta property="og:locale"       content="en_PH" />
+
+    <!-- ── Twitter Card ─────────────────────────────────────────────────── -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:url"         content="https://kamaisl.com/" />
+    <meta name="twitter:title"       content="KamAI — Free Real-Time Sign Language to Text" />
+    <meta name="twitter:description" content="Convert Sign Language fingerspelling to text instantly using your webcam. No account, no install. Runs 100% in your browser." />
+    <meta name="twitter:image"       content="https://kamaisl.com/assets/og-image.png" />
+    <meta name="twitter:image:alt"   content="KamAI sign language to text demo" />
+
+    <!-- ── Favicon ──────────────────────────────────────────────────────────── -->
+    <link rel="icon"             type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="icon"             type="image/png"     href="/assets/favicon.png" sizes="32x32" />
+    <link rel="apple-touch-icon"                      href="/assets/apple-touch-icon.png" />
+    <link rel="manifest"                              href="/site.webmanifest" />
+    <meta name="theme-color" content="#2AABAC" />
+
+    <!-- ── JSON-LD Structured Data ──────────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "KamAI",
+      "url": "https://kamaisl.com/",
+      "description": "Real-time sign language to text interpreter supporting American Sign Language (ASL), Filipino Sign Language (FSL), German Sign Language (DGS), and more. Runs entirely in the browser using TensorFlow.js and MediaPipe.",
+      "applicationCategory": "AccessibilityApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires a modern browser with WebCamera access",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Real-time ASL fingerspelling recognition",
+        "Real-time FSL fingerspelling recognition",
+		"Real-time Sign Language fingerspelling recognition",
+        "No account required",
+        "No data uploaded - runs locally in browser",
+        "Mobile and desktop support"
+      ],
+      "inLanguage": ["en", "fil"],
+      "creator": {
+        "@type": "Organization",
+        "name": "KamAI"
+      },
+      "keywords": "sign language, ASL, FSL, DGS, accessibility, deaf, fingerspelling, real-time"
+    }
+    </script>
+
+    <!-- ── Performance hints ─────────────────────────────────────────────────── -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://flagcdn.com" crossorigin />
+    <link rel="dns-prefetch" href="https://storage.ko-fi.com" />
+
+    <!-- TF.js with SRI hash -->
     <script
       src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"
       integrity="sha384-vE8hbVJ4lezako5rlvE7bY0BVzWlFhZncPlckrqNwcUQpVtgbENTgZ8TBbnPjZre"
       crossorigin="anonymous"
       data-vite-ignore></script>
 
-    <!-- MediaPipe — hand landmark detection and skeleton overlay -->
+    <!-- MediaPipe -->
     <script src="/mediapipe/camera_utils.js"  data-vite-ignore></script>
     <script src="/mediapipe/drawing_utils.js" data-vite-ignore></script>
     <script src="/mediapipe/hands.js"         data-vite-ignore></script>
@@ -23,8 +98,8 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- Ko-fi floating widget — loads after React, never blocks render -->
-    <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js" data-vite-ignore></script>
+    <!-- Ko-fi floating widget -->
+    <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js" defer data-vite-ignore></script>
     <script data-vite-ignore>
       window.addEventListener('load', function () {
         if (typeof kofiWidgetOverlay !== 'undefined') {

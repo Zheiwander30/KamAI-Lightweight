@@ -24,7 +24,7 @@ export function SignToText() {
   const ss = String(elapsed % 60).padStart(2, '0')
 
   return (
-    <section id="sign-to-text" className="py-16 sm:py-20 bg-gray-50">
+    <section id="sign-to-text" className="py-16 sm:py-20 bg-gray-50" aria-label="Sign to Text — live interpreter tool">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <div className="text-center mb-10">

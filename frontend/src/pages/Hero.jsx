@@ -6,7 +6,7 @@ export function Hero({ onStartSigning }) {
   useEffect(() => { const t = setTimeout(() => setVisible(true), 150); return () => clearTimeout(t) }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-14 sm:pt-16">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-14 sm:pt-16" aria-label="Hero — KamAI sign language interpreter">
       <div className="absolute -top-32 -left-32 w-72 sm:w-[500px] h-72 sm:h-[500px] bg-teal-100 rounded-full blur-3xl opacity-40 pointer-events-none" />
       <div className="absolute bottom-0 left-1/3 w-[200px] sm:w-[300px] h-[200px] sm:h-[300px] bg-teal-50 rounded-full blur-2xl opacity-60 pointer-events-none" />
       <div className="absolute top-1/2 right-0 w-[250px] h-[250px] bg-teal-50 rounded-full blur-3xl opacity-50 pointer-events-none" />
@@ -42,7 +42,7 @@ export function Hero({ onStartSigning }) {
             <p className={`text-gray-500 text-base sm:text-lg leading-relaxed max-w-sm mx-auto md:mx-0
               ${visible ? 'animate-fadeUp' : 'opacity-0'} delay-200`}>
               Real-time Sign Language gesture recognition, right in your browser.
-              No login. No uploads. <br /> <span className="text-gray-700 font-semibold">All on-device.</span>
+              No login. No uploads. <br /> <span className="text-gray-700 font-semibold">All on Browser.</span>
             </p>
 
             <div className={`flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4
