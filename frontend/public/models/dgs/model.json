@@ -98,7 +98,7 @@
           "inboundNodes": [],
           "config": {
             "name": "dense_2",
-            "units": 26,
+            "units": 27,
             "activation": "softmax",
             "useBias": true,
             "dtype": "float32"
@@ -189,7 +189,7 @@
           "name": "dense_2/kernel",
           "shape": [
             64,
-            26
+            27
           ],
           "dtype": "float32",
           "byteOffset": 66800
@@ -197,10 +197,10 @@
         {
           "name": "dense_2/bias",
           "shape": [
-            26
+            27
           ],
           "dtype": "float32",
-          "byteOffset": 73456
+          "byteOffset": 73712
         }
       ]
     }

@@ -8,7 +8,7 @@ export function SignToText() {
   const canvasRef       = useRef(null)
   const overlayRef      = useRef(null)
 
-  const { camReady, camError, videoRef, initCamera } = useCamera()
+  const { camReady, camError, camInfo, videoRef, initCamera } = useCamera()
 
   const {
     running, mpLoading, mpError, modelLoading, modelError, activeModel, activeSpeed, handPresent,
@@ -86,11 +86,18 @@ export function SignToText() {
                       </div>
                     )}
 
-                    {/* Live timer */}
+                    {/* Live timer + cam info */}
                     {running && (
-                      <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-red-500/90 rounded-full px-2.5 py-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                        <span className="text-xs font-bold text-white font-mono">{mm}:{ss}</span>
+                      <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
+                        <div className="flex items-center gap-1.5 bg-red-500/90 rounded-full px-2.5 py-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                          <span className="text-xs font-bold text-white font-mono">{mm}:{ss}</span>
+                        </div>
+                        {camInfo && (
+                          <div className="bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
+                            <span className="text-[10px] text-white/60 font-mono">{camInfo}</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
