@@ -28,7 +28,7 @@ export function Navbar({ onStartSigning }) {
 
         <a href="#" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center">
-            <img src="/assets/favicon.png" alt="Logo" className="w-5 h-5 text-white" />
+            <img src="/assets/favicon.svg" alt="Logo" className="w-5 h-5 text-white" />
           </div>
           <span style={{ fontFamily: 'var(--font-display)' }} className="font-bold text-xl text-gray-900">
             Kam<span className="text-teal-500">AI</span>
@@ -62,7 +62,7 @@ export function Navbar({ onStartSigning }) {
       </nav>
 
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-14 bg-white z-40 px-4 py-6 flex flex-col gap-1 animate-fadeIn overflow-y-auto">
+        <div className="md:hidden fixed inset-x-0 top-14 bottom-0 bg-white z-50 px-4 pt-6 pb-8 flex flex-col gap-1 animate-fadeIn overflow-y-auto" style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom))" }}>
           {[['features','Features'],['how-it-works','How It Works']].map(([id, label]) => (
             <button key={id} onClick={() => scrollTo(id)}
               className="block py-3 px-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-teal-50 hover:text-teal-600 transition-colors text-left">
@@ -70,7 +70,7 @@ export function Navbar({ onStartSigning }) {
             </button>
           ))}
           <div className="h-px bg-gray-100 my-2" />
-          <a href="https://ko-fi.com" target="_blank" rel="noopener noreferrer"
+          <a href="https://ko-fi.com/kamaisl" target="_blank" rel="noopener noreferrer"
             className="block py-3 px-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-teal-50 hover:text-teal-600">
             ☕ Support on Ko-fi
           </a>

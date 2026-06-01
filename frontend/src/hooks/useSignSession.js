@@ -4,14 +4,7 @@ import {
   MAX_TRANSCRIPT_WORDS, MAX_PENDING_LETTERS, DEFAULT_MODEL,
 } from '../constants'
 import { predictFromLandmarks, loadTFJSModel } from '../utils/tfjsModel'
-
-/**
- *
- * Mobile mirroring fix:
- * Speed modes:
- *   captureInterval and repeatsToConfirm come from the active speed mode,
- *   passed in as props. Changing speed mid-session restarts the predict loop.
- */
+import { useLetterSound }                         from './useLetterSound'
  
 export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   // ── Refs ────────────────────────────────────────────────────────────────────
@@ -25,6 +18,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   const repeatCountRef = useRef(0)
   const sessionStartRef= useRef(null)
   const pendingWordRef = useRef('')
+  const modelIdRef     = useRef(DEFAULT_MODEL.id)  // always current model, never stale closure
   // Speed mode refs — read by the interval loop without stale closure
   const captureIntervalRef  = useRef(DEFAULT_SPEED.captureInterval)
   const repeatsToConfirmRef = useRef(DEFAULT_SPEED.repeatsToConfirm)
@@ -44,14 +38,21 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   const [archivedCount, setArchivedCount] = useState(0)
   const [elapsed,       setElapsed]       = useState(0)
   const [handPresent,   setHandPresent]   = useState(false)
+  const { playLetter, playWord } = useLetterSound()
 
   useEffect(() => { pendingWordRef.current = pendingWord }, [pendingWord])
 
-  // Keep speed refs in sync with state — the interval loop reads refs directly
+  // Keep speed refs in sync with state
   useEffect(() => {
     captureIntervalRef.current  = activeSpeed.captureInterval
     repeatsToConfirmRef.current = activeSpeed.repeatsToConfirm
   }, [activeSpeed])
+
+  // Keep modelIdRef in sync — predict loop reads this ref so it always
+  // uses the currently selected model, never a stale closure value
+  useEffect(() => {
+    modelIdRef.current = activeModel.id
+  }, [activeModel])
 
   // ── Session timer ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -83,6 +84,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
 
   // ── Commit word ────────────────────────────────────────────────────────────
   const commitWord = useCallback((w) => {
+    playWord()
     setTranscript(prev => {
       const next = [...prev, w]
       if (next.length > MAX_TRANSCRIPT_WORDS) {
@@ -191,7 +193,8 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
   // ── Predict loop ───────────────────────────────────────────────────────────
   // Uses refs for captureInterval and repeatsToConfirm so speed changes
   // take effect immediately without restarting the loop.
-  const startPredictLoop = (modelId) => {
+  // modelId is now read from modelIdRef inside the loop — never stale
+  const startPredictLoop = () => {
     let predicting = false
     let lastTick   = 0
 
@@ -208,7 +211,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
           try {
             const { letter, confidence: conf } = await predictFromLandmarks(
               landmarksRef.current,
-              modelId,
+              modelIdRef.current,   // always read from ref — never stale
               MIN_CONFIDENCE,
             )
             if (stoppedRef.current) return
@@ -220,6 +223,7 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
               if (letter === lastLetterRef.current) {
                 repeatCountRef.current += 1
                 if (repeatCountRef.current === repeatsToConfirmRef.current) {
+                  playLetter()
                   setPendingWord(w => {
                     const next = w + letter
                     if (next.length >= MAX_PENDING_LETTERS) {
@@ -273,7 +277,8 @@ export function useSignSession({ videoRef, canvasRef, overlayRef }) {
     landmarksRef.current    = null
     sessionStartRef.current = Date.now()
 
-    startPredictLoop(activeModel.id)
+    modelIdRef.current = activeModel.id   // ensure ref is current before loop starts
+    startPredictLoop()
     startLandmarkLoop(hands)
   }
 

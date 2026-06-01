@@ -1,22 +1,18 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 
 /**
- * Camera hook — platform-aware constraints for best prediction quality.
+ * Camera hook 
  *
- * Mobile vs Desktop are configured differently because:
- *
- *   Mobile:  Lower fps (15) = longer exposure per frame = sharper image on phone.
+ *   Mobile:  Lower fps (24) = longer exposure per frame = sharper image on phone.
  *            30fps on mobile causes motion blur because the sensor exposure time
  *            is too short. Sharper frames = more precise MediaPipe landmarks.
  *            Manual focus/exposure/WB locks the camera state so landmark
  *            positions don't drift frame-to-frame from camera adjustments.
  *
  *   Desktop: 30fps is fine — webcam sensors handle it cleanly.
- *            Advanced constraints (focusMode etc) are not supported on
- *            desktop webcams and cause errors if applied.
  *
  * Both platforms:
- *   640×480 matches training data resolution exactly — no rescaling pipeline.
+ *   640×480 matches training data resolution exactly and no rescaling pipeline.
  *   resizeMode:'none' tells the browser to crop the native sensor output
  *   instead of scaling it down, eliminating interpolation artifacts.
  */
@@ -24,7 +20,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
 
 // ── Platform-specific base constraints ────────────────────────────────────────
-const DESKTOP_CONSTRAINTS = {
+const DESKTOP_CONSTRAINTS = { //DESKTOP
   video: {
     facingMode:  'user',
     width:       { ideal: 640, max: 1280 },
@@ -34,21 +30,19 @@ const DESKTOP_CONSTRAINTS = {
   }
 }
 
-const MOBILE_CONSTRAINTS = {
+const MOBILE_CONSTRAINTS = { // MOBILE
   video: {
     facingMode:  'user',
     width:       { ideal: 640, max: 640 },
     height:      { ideal: 480, max: 480 },
-    // 15fps on mobile — longer exposure per frame = sharper, less motion blur
-    // MediaPipe processes at its own rate anyway so lower input fps is fine
-    frameRate:   { ideal: 15,  max: 20  },
+    frameRate:   { ideal: 24,  max: 24  },
     resizeMode:  'none',
   }
 }
 
 // ── Advanced mobile constraints (Chrome Android only) ─────────────────────────
 // These lock the camera state so pixel values are consistent frame-to-frame.
-// Silently ignored on iOS Safari, Firefox, and desktop — safe to always attempt.
+// Silently ignored on iOS Safari, Firefox, and desktop.
 async function applyAdvancedMobileConstraints(track) {
   if (!track?.applyConstraints) return
 
@@ -65,7 +59,7 @@ async function applyAdvancedMobileConstraints(track) {
     }
   }
 
-  // Lock exposure — prevents brightness jumps between frames
+  // Lock exposure to prevent brightness jumps between frames
   // Use a slightly darker-than-auto exposure to reduce overexposed skin tones
   if (caps.exposureMode?.includes('manual')) {
     advanced.exposureMode = 'manual'
@@ -77,12 +71,11 @@ async function applyAdvancedMobileConstraints(track) {
     }
   }
 
-  // Lock white balance — removes warm/cool color shifts from auto-WB
-  // that affect how MediaPipe's CNN reads skin tone
+  // Lock white balance to remove warm/cool color shifts from auto-WB
   if (caps.whiteBalanceMode?.includes('manual')) {
     advanced.whiteBalanceMode = 'manual'
     if (caps.colorTemperature) {
-      // 4500K — neutral daylight white, close to what desktop webcams default to
+      // 4500K 
       const clamp = (v, min, max) => Math.min(Math.max(v, min), max)
       advanced.colorTemperature = clamp(4500, caps.colorTemperature.min ?? 2500, caps.colorTemperature.max ?? 8000)
     }
@@ -95,7 +88,7 @@ async function applyAdvancedMobileConstraints(track) {
     const applied = Object.keys(advanced).join(', ')
     console.log(`[useCamera] Mobile advanced constraints applied: ${applied}`)
   } catch (e) {
-    // Non-fatal — device doesn't support these, predictions still work
+    // Non-fatal err
     console.log('[useCamera] Advanced constraints not supported on this device')
   }
 }
@@ -118,7 +111,7 @@ export function useCamera() {
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints)
     } catch {
-      // resizeMode or frameRate cap may be unsupported — fall back without them
+      // resizeMode or frameRate cap may be unsupported, implement fall back
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }

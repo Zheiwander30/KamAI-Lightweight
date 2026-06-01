@@ -16,11 +16,11 @@ export function Features() {
           <span className="text-xs font-bold uppercase tracking-widest text-teal-500">Features</span>
           <h2 style={{ fontFamily: 'var(--font-display)' }}
             className="font-black text-3xl sm:text-4xl md:text-5xl text-gray-900 mt-3 mb-4">
-            Everything you need for<br/>
+            A simple web app to help you start for<br/>
             <span className="text-teal-500 italic">inclusive communication</span>
           </h2>
           <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-            KamAI removes barriers between hearing and Deaf communities — in real time, in any browser.
+            KamAI helps close the gap between hearing and Deaf communities — in real time, in any browser.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -112,7 +112,7 @@ export function SupportBanner() {
         <p className="text-teal-100 text-base sm:text-lg mb-8 max-w-xl mx-auto">
           If KamAI helped you communicate or practice sign language, consider buying us a coffee. Your support keeps this tool free and actively maintained.
         </p>
-        <a href="https://ko-fi.com/E1E21X5T2F" target="_blank" rel="noopener noreferrer"
+        <a href="https://ko-fi.com/kamaisl" target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-white text-teal-600 font-bold px-8 py-4 rounded-2xl
             hover:bg-teal-50 transition-colors shadow-lg">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
